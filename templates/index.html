@@ -1,22 +1,269 @@
-      <!-- -----Front end code HTML5 & CSS3----- -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
-</head>
-<body>
-    <div id="cls">
-        <form action="{{ url_for('predict') }}" method='post' id="formm" >
-            <h2 id="main_h"><ul>Old Bikes Price Prediction 😊</ul></h2><br><br>
-            <p id="par" ><b>select your bike</b></p>
+    <title>Used Bike Price Prediction</title>
 
-                        <select name="brand_name" id="fifth" required="required">
-                            <option value="Royal Enfield" >Royal Enfield</option>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(255, 153, 102, 0.22), transparent 35%),
+                linear-gradient(135deg, #0f172a, #1e293b 45%, #111827);
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 980px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 28px;
+            align-items: stretch;
+        }
+
+        .hero-card,
+        .form-card {
+            background: rgba(15, 23, 42, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 26px;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+            backdrop-filter: blur(14px);
+        }
+
+        .hero-card {
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-card::after {
+            content: "";
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(249, 115, 22, 0.18);
+            position: absolute;
+            right: -70px;
+            bottom: -70px;
+        }
+
+        .badge {
+            width: fit-content;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(249, 115, 22, 0.16);
+            color: #fed7aa;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            margin-bottom: 22px;
+        }
+
+        h1 {
+            font-size: 42px;
+            line-height: 1.1;
+            margin-bottom: 16px;
+        }
+
+        .hero-card p {
+            color: #cbd5e1;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .price-box {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            position: relative;
+            z-index: 1;
+        }
+
+        .price-box span {
+            display: block;
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .price-box strong {
+            font-size: 32px;
+        }
+
+        .error-box {
+            margin-top: 30px;
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(239, 68, 68, 0.16);
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            color: #fecaca;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-card {
+            padding: 34px;
+        }
+
+        .form-card h2 {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .form-card .subtitle {
+            color: #94a3b8;
+            margin-bottom: 26px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 14px;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            height: 48px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 14px;
+            background: rgba(2, 6, 23, 0.55);
+            color: #f8fafc;
+            padding: 0 14px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        select option {
+            color: #111827;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #fb923c;
+            box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.16);
+        }
+
+        button {
+            width: 100%;
+            height: 52px;
+            margin-top: 24px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #fb923c, #f97316);
+            color: #111827;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 14px 30px rgba(249, 115, 22, 0.32);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 38px rgba(249, 115, 22, 0.45);
+        }
+
+        .footer-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #fed7aa;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 800px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 34px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <section class="hero-card">
+            <div>
+                <div class="badge">Machine Learning Project</div>
+                <h1>Used Bike Price Predictor</h1>
+                <p>
+                    Enter bike details like brand, kilometers driven, age, owner count,
+                    and engine power to estimate the resale price.
+                </p>
+            </div>
+
+            {% if prediction_text %}
+            <div class="price-box">
+                <span>Estimated Bike Price</span>
+                <strong>{{ prediction_text }}</strong>
+            </div>
+            {% endif %}
+
+            {% if error_text %}
+            <div class="error-box">
+                {{ error_text }}
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="form-card">
+            <h2>Bike Details</h2>
+            <p class="subtitle">Fill the form below to predict the bike price.</p>
+
+            <form action="{{ url_for('predict') }}" method="post">
+                <div class="form-grid">
+                    <div class="field full">
+                        <label for="brand_name">Bike Brand</label>
+                        <select name="brand_name" id="brand_name" required>
+                            <option value="">Select brand</option>
+                            <option value="Royal Enfield">Royal Enfield</option>
                             <option value="KTM">KTM</option>
                             <option value="Bajaj">Bajaj</option>
                             <option value="Harley">Harley-Davidson</option>
@@ -31,159 +278,37 @@
                             <option value="Triumph">Triumph</option>
                             <option value="Ducati">Ducati</option>
                             <option value="BMW">BMW</option>
-                        </select><br><br>
-                        <p id="par"><b>What kms.. driven bike</b></p>
+                        </select>
+                    </div>
 
-                        <input  name="Kms_Driven" type="number " id="first" required="required"><br><br>
-                        <p id="par"><b>How many owner used this bike</b></p>
-                        <input  name="owner" type="number" id="second" required="required"><br><br>
-                        <p id="par"><b>how many years used this bike</b></p>
-                        <input type="number" name="age" id="third" required="required"><br><br>
-                        <p id="par"><b>what the power of bike or CC power</b></p>
-                        <input type="number" name="power"  id="forth" required="required"><br><br>
-                        <button type="submit" id="btn" >CLICK ME</button>
-                        
-                        <br>
-                        <br>
-                        <h3 id="pred">Bike 🏍 price will be around 👉 {{ prediction_text }}<h3>
-                
-                    </form>
-                    <br>
-                    <a href="https://github.com/Ranjit-Singh-786/BIke-project_Deployment" id="src">GET SOURCE CODE</a>
-                    
+                    <div class="field">
+                        <label for="Kms_Driven">Kilometers Driven</label>
+                        <input name="Kms_Driven" id="Kms_Driven" type="number" min="0" placeholder="Example: 25000" required>
+                    </div>
 
-                
+                    <div class="field">
+                        <label for="owner">Number of Owners</label>
+                        <input name="owner" id="owner" type="number" min="1" max="5" placeholder="Example: 1" required>
+                    </div>
 
-            </div> 
-            <style>
-                * {
-                    margin:0px;
-                    padding:0px;
-                }
-                body{
-                    font-family: sans-serif;
-                    
-                }
-                
-                body{
-                    /* background-image:linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.2)),url(plant.jpg); */
-                    height:100vh;
-                    background-color: rgb(215, 189, 240);
-                    background-size:cover;
-                    background-attachment: fixed;
-                    
-                }
-                #cls {
-                    color:rgb(80, 78, 77);
-                
-                    background-color: rgb(202, 173, 231);
-                }
-                #formm{
-                   margin-top: 10px;
-                margin-bottom: 0px;
-                    background-color:transparent;
-                    margin-left: 30px;
-                  
-                    
-                }
-                #main_h{
-                   
-                    color:rgb(44, 46, 43);
-                    font-size: 30px;
-                    box-shadow: 2px 8px 5px rgb(95, 93, 93);
-                
-                }
-                #par2{
-                    font-size: 22px;
-                    color: rgb(187, 130, 33);
-                    font-size: 18px;
-                }
-                #first {
-                            border-radius: 14px;
-                            height: 25px;
-                            font-size: 20px;
-                            border:solid rgb(44, 46, 43)
-                            text-align: center;
-                            box-shadow: 2px 8px 5px rgb(133, 130, 130);
-                
-                        }
-                        #btn:hover{
-                            background-color: rgb(240, 238, 230);
-                            color: rgb(19, 18, 18);
-                            border-color: transparent;
-                            border-color: rgb(14, 13, 13);
-                            box-shadow: 2px 8px 5px rgb(20, 20, 20);
-                        }
-                
-                        #second {
-                            border-radius: 14px;
-                            height: 25px;
-                            font-size: 20px;
-                            text-align: center;
-                            box-shadow: 2px 8px 5px rgb(95, 93, 93);
-                
-                        }
-                
-                        #third {
-                            border-radius: 14px;
-                            height: 25px;
-                            font-size: 20px;
-                            text-align: center;
-                            box-shadow: 2px 8px 5px rgb(95, 93, 93);
-                
-                        }
-                
-                        #forth {
-                            border-radius: 14px;
-                            height: 25px;
-                            font-size: 20px;
-                            text-align: center;
-                            box-shadow: 2px 8px 5px rgb(95, 93, 93);
-                        }
-                        #fifth {
-                            /* text-decoration:none; */
-                            box-shadow: 2px 8px 5px rgb(95, 93, 93);
-                            background-color: whitesmoke;
-                            border-radius: 14px;
-                            height: 25px;
-                            font-size: 15px;
-                            width: 250px;
-                            text-align: center;
-                        }
-                        #btn{
-                            border: 3px solid black;
-                            border-radius: 50px;
-                            background-color:rgb(105, 104, 102);
-                            width: 210px;
-                            height: 35px;
-                            font-size: 15px;
-                            color: whitesmoke;
-                            box-shadow: 2px 8px 5px rgb(95, 93, 93);
-                
-                        }
-                        #pred{
-                            margin-left: 10px;
-                            color: rgb(19, 18, 18);
-                        }
-                        #src{
-                            border: 3px solid black;
-                            border-radius: 50px;
-                            background-color:rgb(105, 104, 102);
-                            width: 210px;
-                            height: 35px;
-                            font-size: 15px;
-                            color: whitesmoke;
-                            box-shadow: 2px 8px 5px rgb(95, 93, 93);
-                
-                        }
-                        #src:hover{
-                            background-color: rgb(240, 238, 230);
-                            color: rgb(19, 18, 18);
-                            border-color: transparent;
-                            border-color: rgb(14, 13, 13);
-                            box-shadow: 2px 8px 5px rgb(20, 20, 20);
-                        }
-                </style>
+                    <div class="field">
+                        <label for="age">Bike Age in Years</label>
+                        <input name="age" id="age" type="number" min="0" max="40" placeholder="Example: 4" required>
+                    </div>
 
+                    <div class="field">
+                        <label for="power">Engine Power / CC</label>
+                        <input name="power" id="power" type="number" min="50" max="2500" placeholder="Example: 350" required>
+                    </div>
+                </div>
+
+                <button type="submit">Predict Price</button>
+            </form>
+
+            <a class="footer-link" href="https://github.com/ArnavSapien/font-recognition-system" target="_blank">
+                View Source Code
+            </a>
+        </section>
+    </main>
 </body>
 </html>

@@ -1,80 +1,69 @@
-from flask import Flask , render_template,request,jsonify
-from joblib import dump,load
-import numpy 
-import warnings
-warnings.filterwarnings('ignore')
+from pathlib import Path
 
-# import sklearn
-# import pymongo    # for deal with the mongodb database
-# client = pymongo.MongoClient("mongodb+srv://Ranjit_singh:<password>@learning.a5xc4jg.mongodb.net/?retryWrites=true&w=majority")
-# mydb=client['Bikeproject']  # create the database for the project
-# colle=mydb['bike_data']      # collection create
+import pandas as pd
+from flask import Flask, render_template, request
+from joblib import load
 
-# model=pickle.load(open('bike_price_prediction.pkl','rb'))
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_PATH = BASE_DIR / "updated_model.lb"
 
-model = load('updated_model.lb')
 application = Flask(__name__)
 app = application
 
+model = load(MODEL_PATH)
 
-@app.route('/',methods=['GET','POST'])
-def Home():
-    return render_template('index.html')
+BRAND_MAP = {
+    "Royal Enfield": 1,
+    "KTM": 2,
+    "Bajaj": 3,
+    "Harley": 4,
+    "Yamaha": 5,
+    "Honda": 6,
+    "Suzuki": 7,
+    "TVS": 8,
+    "Kawasaki": 9,
+    "Hyosung": 10,
+    "Benelli": 11,
+    "Mahindra": 12,
+    "Triumph": 13,
+    "Ducati": 14,
+    "BMW": 15,
+}
 
 
-@app.route('/predict', methods=['GET','POST'])
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("index.html")
+
+
+@app.route("/predict", methods=["POST"])
 def predict():
-    if request.method=='POST':
-        kms_driven=request.form['Kms_Driven']   # gathering the document
-        owner=request.form['owner']
-        age=int(request.form['age'])
-        power=int(request.form['power'])
-        brand=request.form['brand_name']
-        # record={'bike':brand,'kilometeres':kms_driven,'handed':owner,'year':age,'power':power}        # create the json document for database
-        if (brand=='Royal Enfield'):  # feature scaling string into integer
-            brand=1
-        elif(brand=='KTM'):
-            brand=2
-        elif(brand=='Bajaj'):
-            brand=3
-        elif(brand=='Harley'):
-            brand=4
-        elif(brand=='Yamaha'):
-            brand=5
-        elif(brand=='Honda'):
-            brand=6
-        elif(brand=='Suzuki'):
-            brand=7
-        elif(brand=='TVS'):
-            brand=8
-        elif(brand=='Kawasaki'):
-            brand=9
-        elif(brand=='Hyosung'):
-            brand=10
-        elif(brand=='Benelli'):
-            brand=11
-        elif(brand=='Mahindra'):
-            brand=12
-        elif(brand=='Triumph'):
-            brand=13
-        elif(brand=='Ducati'):
-            brand=14
-        elif(brand=='BMW'):
-            brand=15
+    try:
+        kms_driven = int(request.form["Kms_Driven"])
+        owner = int(request.form["owner"])
+        age = int(request.form["age"])
+        power = int(request.form["power"])
+        brand_name = request.form["brand_name"]
 
+        brand = BRAND_MAP.get(brand_name)
+        if brand is None:
+            return render_template("index.html", error_text="Please select a valid bike brand.")
 
-        prediction=model.predict([[kms_driven,owner,age,power,brand]])  # pass value in the model
-        output=str(prediction[0])    # change dtype int into string of prediction
-        output2=str(output)
-        # record['Price']=prediction[0].round(2)       # adding the price into mongodb database
-        # colle.insert_one(record)
-    return render_template('index.html',prediction_text=f' {output2}')    # return the value on the webpage
+        input_data = pd.DataFrame(
+            [[kms_driven, owner, age, power, brand]],
+            columns=["kms_driven", "owner", "age", "power", "brand"],
+        )
+
+        prediction = model.predict(input_data)[0]
+        prediction_text = f"₹ {prediction:,.0f}"
+
+        return render_template("index.html", prediction_text=prediction_text)
+
+    except ValueError:
+        return render_template("index.html", error_text="Please enter valid numeric values.")
+    except Exception as e:
+        return render_template("index.html", error_text=f"Something went wrong: {e}")
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",port=5050)
-
-
-
-        #  -----Backend code by using Flask----- 
-
+    app.run(host="127.0.0.1", port=5050, debug=True)
